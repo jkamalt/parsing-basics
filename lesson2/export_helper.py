@@ -22,7 +22,6 @@ def write_list_to_csv(input_list, file_name, encoding=ENCODING):
     :param input_list: список словарей, который будет записан в файл
     :param file_name: имя файла, куда будут записаны данные
     :param encoding: кодировка
-    :return:
     """
     list_df = pandas.json_normalize(input_list)
     list_df.to_csv(file_name, sep=';', encoding=encoding, index=False)
