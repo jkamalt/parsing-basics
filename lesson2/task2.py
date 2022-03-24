@@ -1,3 +1,4 @@
+# Урок 2
 # Необходимо собрать информацию о вакансиях на вводимую должность
 # (используем input или через аргументы получаем должность) с сайтов HH(обязательно) и/или Superjob(по желанию).
 # Приложение должно анализировать несколько страниц сайта (также вводим через input или аргументы).
@@ -11,6 +12,14 @@
 # Структура должна быть одинаковая для вакансий с обоих сайтов.
 # Общий результат можно вывести с помощью dataFrame через pandas. Сохраните в json либо csv.
 
+# Урок 3
+# 1. Развернуть у себя на компьютере/виртуальной машине/хостинге MongoDB и реализовать функцию,
+# которая будет добавлять только новые вакансии/продукты в вашу базу.
+# 2. Написать функцию, которая производит поиск и выводит на экран вакансии с заработной платой
+# больше введённой суммы (необходимо анализировать оба поля зарплаты).
+# Для тех, кто выполнил задание с Росконтролем - напишите запрос для поиска продуктов с рейтингом не ниже введенного
+# или качеством не ниже введенного (то есть цифра вводится одна, а запрос проверяет оба поля)
+
 
 import requests
 import time
@@ -19,7 +28,8 @@ from bs4 import BeautifulSoup as BS
 from config import USER_AGENT
 from str_processing_helper import clean_spaces, clean_punctuation, try_parse
 from export_helper import write_list_to_json, write_list_to_csv
-from prompt_helper import prompt_job_name, prompt_pages_count
+from mongo_helper import write_list_to_db, print_jobs_with_salary_greater_than
+from prompt_helper import prompt_job_name, prompt_pages_count, prompt_salary_min
 
 
 def execute_requests(job_name, pages_count=1):
@@ -120,9 +130,6 @@ def get_salary_data(salary_tag):
 
 
 def main():
-    job_name = 'data scientist'
-    pages_count = 1
-
     # Запрашивание у пользователя названия вакансии и числа страниц
     job_name = prompt_job_name()
     if job_name is None:
@@ -138,9 +145,26 @@ def main():
     # Получение списка с данными о вакансиях
     jobs_list = parse_responses(responses)
 
+    print('Данные получены')
+
     # Запись полученного списка в файлы
     write_list_to_json(jobs_list, 'jobs.json')
     write_list_to_csv(jobs_list, 'jobs.csv')
+
+    print('Данные записаны в файл')
+
+    # Запись полученного списка в БД
+    write_list_to_db(jobs_list, print_result=True)
+
+    print('Данные записаны в БД')
+
+    # Запрашивание у пользователя минимального значения зарплаты для поиска вакансий
+    salary_min = prompt_salary_min()
+    if salary_min is None:
+        return
+
+    # Вывод на экран списка вакансий из БД с зарплатой больше заданного значения
+    print_jobs_with_salary_greater_than(salary_min)
 
 
 main()

@@ -39,3 +39,22 @@ def prompt_pages_count(quit_symbol=QUIT_SYMBOL):
             print('Число страниц должно быть целым положительным числом')
         else:
             return pages_count
+
+
+def prompt_salary_min(quit_symbol=QUIT_SYMBOL):
+    """
+    Запрашивает у пользователя минимальное значение зарплаты для поиска вакансий
+    :param quit_symbol:  символ выхода из цикла ввода значения зарплаты
+    :return: минимальное значение зарплаты
+    """
+    while True:
+        salary_min_str = input(f'Введите минимальное значение зарплаты (или {quit_symbol} для выхода): ')
+        salary_min = try_parse(salary_min_str)
+
+        if salary_min_str.lower() == quit_symbol.lower():
+            return None
+
+        if salary_min is None or salary_min < 1:
+            print('Минимальное значение зарплаты должно быть целым положительным числом')
+        else:
+            return salary_min
