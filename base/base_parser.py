@@ -55,7 +55,7 @@ class BaseParser:
 
     def parse(self):
         """
-        Парсит сайт с адресом url_to_parse
+        Парсит сайт с адресом url_to_parse.
         """
         return NotImplementedError('Метод не реализован!')
 
@@ -65,15 +65,17 @@ class BaseParser:
         """
         if not self._result:
             return
+        try:
+            with pymongo.MongoClient(DB_HOST, DB_PORT) as client:
+                db = client[self.db_name]
+                collection = db[self.collection_name]
 
-        with pymongo.MongoClient(DB_HOST, DB_PORT) as client:
-            db = client[self.db_name]
-            collection = db[self.collection_name]
+                add_items_to_collection(self._result, collection)
 
-            add_items_to_collection(self._result, collection)
-
-            if print_db_collection:
-                print_collection(collection)
+                if print_db_collection:
+                    print_collection(collection)
+        except Exception as e:
+            print(f'При записи в БД Mongo произошла ошибка: {e}')
 
     def write_result_to_json(self, file_name, ensure_ascii=True):
         """
@@ -81,13 +83,19 @@ class BaseParser:
         :param file_name: имя файла, куда будут записаны данные
         :param ensure_ascii: экранирование ASCII-символов
         """
-        if self._result:
-            write_list_to_json(self._result, file_name, ensure_ascii=ensure_ascii)
+        try:
+            if self._result:
+                write_list_to_json(self._result, file_name, ensure_ascii=ensure_ascii)
+        except Exception as e:
+            print(f'При записи в json-файл произошла ошибка: {e}')
 
     def write_result_to_csv(self, file_name):
         """
         Записывает результат работы парсера в csv-файл с заданным именем.
         :param file_name: имя файла, куда будут записаны данные
         """
-        if self._result:
-            write_list_to_csv(self._result, file_name)
+        try:
+            if self._result:
+                write_list_to_csv(self._result, file_name)
+        except Exception as e:
+            print(f'При записи в csv-файл произошла ошибка: {e}')

@@ -34,50 +34,55 @@ class MailRuParser(BaseParser):
         Возвращает список адресов, соответствующих письмам.
         :return: список адресов
         """
-        self._driver.get(self.url_to_parse)
-
-        # Выключение чекбокса Запомнить
-        checkbox = self._get_clickable_element(By.CLASS_NAME, 'save-auth-field-wrap')
-        checkbox.click()
-
-        login = self._driver.find_element(By.XPATH, '//input[@name="username"]')
-        login.send_keys(LOGIN)
-
-        # Кнопка Ввести пароль
-        button = self._driver.find_element(By.XPATH, '//button[@data-test-id="next-button"]')
-        button.click()
-
-        password = self._get_visible_element(By.XPATH, '//input[@name="password"]')
-        password.send_keys(PASSWORD)
-
-        # Кнопка Войти
-        button = self._driver.find_element(By.XPATH, '//button[@data-test-id="submit-button"]')
-        button.click()
-
-        # Ожидание загрузки списка писем
-        first_letter = self._get_visible_element(By.XPATH, '//a[contains(@class, "js-letter-list-item")]')
-
         urls = set()
-        last_url = ''
-        while True:
-            letters = self._driver.find_elements(By.XPATH, '//a[contains(@class, "js-letter-list-item")]')
-            curr_last_url = letters[-1].get_attribute('href')
+        try:
+            self._driver.get(self.url_to_parse)
 
-            # Если последний url-адрес на текущей странице совпадает с предыдущим, то выход из цикла
-            if last_url == curr_last_url:
-                break
-            last_url = curr_last_url
+            # Выключение чекбокса Запомнить
+            checkbox = self._get_clickable_element(By.CLASS_NAME, 'save-auth-field-wrap')
+            checkbox.click()
 
-            urls_subset = set([letter.get_attribute('href') for letter in letters])
-            urls.update(urls_subset)
+            login = self._driver.find_element(By.XPATH, '//input[@name="username"]')
+            login.send_keys(LOGIN)
 
-            actions = ActionChains(self._driver)
-            actions.move_to_element(letters[-1])
-            actions.perform()
+            # Кнопка Ввести пароль
+            button = self._driver.find_element(By.XPATH, '//button[@data-test-id="next-button"]')
+            button.click()
 
-            time.sleep(3)
+            password = self._get_visible_element(By.XPATH, '//input[@name="password"]')
+            password.send_keys(PASSWORD)
 
-        return list(urls)
+            # Кнопка Войти
+            button = self._driver.find_element(By.XPATH, '//button[@data-test-id="submit-button"]')
+            button.click()
+
+            # Ожидание загрузки списка писем
+            first_letter = self._get_visible_element(By.XPATH, '//a[contains(@class, "js-letter-list-item")]')
+
+            last_url = ''
+            while True:
+                letters = self._driver.find_elements(By.XPATH, '//a[contains(@class, "js-letter-list-item")]')
+                curr_last_url = letters[-1].get_attribute('href')
+
+                # Если последний url-адрес на текущей странице совпадает с предыдущим, то выход из цикла
+                if last_url == curr_last_url:
+                    break
+                last_url = curr_last_url
+
+                urls_subset = set([letter.get_attribute('href') for letter in letters])
+                urls.update(urls_subset)
+
+                actions = ActionChains(self._driver)
+                actions.move_to_element(letters[-1])
+                actions.perform()
+
+                time.sleep(3)
+
+        except Exception as e:
+            print(f'При получении адресов писем произошла ошибка: {e}')
+            print(f'Получено адресов: {len(urls)}')
+        finally:
+            return list(urls)
 
     def _parse_items(self, urls):
         """
@@ -122,14 +127,9 @@ class MailRuParser(BaseParser):
         self._result.append(letter)
 
     def parse(self):
-        try:
-            urls = self._get_items()
-            self._parse_items(urls)
-        except Exception as e:
-            print(f'При парсинге писем произошла ошибка: {e}')
-        finally:
-            self._driver.quit()
-            self.write_result_to_json('letters.json', ensure_ascii=False)
+        urls = self._get_items()
+        self._parse_items(urls)
+        self._driver.quit()
 
     def _get_clickable_element(self, by: By, value: str):
         """
