@@ -8,18 +8,46 @@
 from itemadapter import ItemAdapter
 from pymongo import MongoClient
 
+from helpers.str_processing_helper import extract_and_try_parse, extract_letters, clean_spaces
+from config.config import DB_HOST, DB_PORT
+
 
 class JobparserPipeline:
 
     def __init__(self):
-        client = MongoClient('localhost', 27017)
+        client = MongoClient(DB_HOST, DB_PORT)
         self.db_mongo = client.vacancy_db
 
     def process_item(self, item, spider):
-        # item['min'], item['max'], item['cur'] = self.process_salary(item['salary'])
+        process_salary = self.process_hh_salary
+        item['salary_min'], item['salary_max'], item['salary_currency'] = process_salary(item['salary'])
+        del item['salary']
+
         collection = self.db_mongo[spider.name]
         collection.insert_one(item)
         return item
 
-    def process_salary(self, salary):
-        return 1, 2, 3
+    def process_hh_salary(self, salary):
+        if not salary:
+            return [None] * 3
+
+        salary_clean = [clean_spaces(el).lower() for el in salary if el.split()]
+        salary_data = []
+        max_idx = 0
+        for idx, el in enumerate(salary_clean):
+            number = extract_and_try_parse(el)
+            if number is not None:
+                max_idx = idx
+                salary_data.append(number)
+
+        if not salary_data:
+            return [None] * 3
+
+        if len(salary_data) == 1:
+            if 'до' in salary_clean:
+                salary_data.insert(0, None)
+            elif 'от' in salary_clean:
+                salary_data.append(None)
+
+        salary_data.append(extract_letters(salary_clean[max_idx + 1]).upper())
+        return salary_data

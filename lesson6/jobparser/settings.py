@@ -7,6 +7,8 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
+import config.config as user_config
+
 BOT_NAME = 'jobparser'
 
 SPIDER_MODULES = ['jobparser.spiders']
@@ -16,7 +18,7 @@ LOG_ENABLE = True
 LOG_LEVEL = 'DEBUG'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36'
+USER_AGENT = user_config.USER_AGENT
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False

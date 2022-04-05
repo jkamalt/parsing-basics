@@ -7,6 +7,8 @@ from jobparser.spiders.hhru import HhruSpider
 if __name__ == '__main__':
     crawler_settings = Settings()
     crawler_settings.setmodule(settings)
+    crawler_settings.set('FEED_URI', 'result.json')
+    crawler_settings.set('FEED_FORMAT', 'json')
 
     process = CrawlerProcess(settings=crawler_settings)
     process.crawl(HhruSpider)
