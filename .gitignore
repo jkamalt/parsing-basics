@@ -4,5 +4,6 @@ venv
 
 **/*.exe
 **/*.json
+**/*.jpg
 
 config/login_config.py
