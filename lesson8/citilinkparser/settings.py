@@ -70,6 +70,7 @@ COOKIES_ENABLED = True
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
    'citilinkparser.pipelines.CitilinkparserPipeline': 300,
+   'citilinkparser.pipelines.CitilinkPhotosPipeline': 200,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
