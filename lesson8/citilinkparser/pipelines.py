@@ -13,18 +13,29 @@ import hashlib
 from itemadapter import ItemAdapter
 from scrapy.pipelines.images import ImagesPipeline
 from os.path import join
+from pymongo import MongoClient
+from config.config import DB_HOST, DB_PORT
 
 
 class CitilinkparserPipeline:
     def __init__(self):
         self.result = []
+        self.db_client = MongoClient(DB_HOST, DB_PORT)
+        self.mongo_db = self.db_client.smartphones_db
 
     def close_spider(self, spider):
+        self.db_client.close()
         with open('result.json', 'w', encoding='utf-8') as f:
             json.dump(self.result, f, ensure_ascii=False, indent=4)
 
     def process_item(self, item, spider):
         self.result.append(ItemAdapter(item).asdict())
+
+        collection = self.mongo_db[spider.name]
+        try:
+            collection.insert_one(item)
+        except Exception as e:
+            print(f'Error occurred by insert item: {e}')
         return item
 
 
