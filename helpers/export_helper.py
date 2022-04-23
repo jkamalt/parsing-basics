@@ -14,7 +14,7 @@ def write_list_to_json(input_list, file_name, encoding=ENCODING, ensure_ascii=Tr
     :param ensure_ascii: экранирование ASCII-символов
     """
     with open(file_name, 'w', encoding=encoding) as f:
-        json.dump(input_list, f, ensure_ascii=ensure_ascii)
+        json.dump(input_list, f, ensure_ascii=ensure_ascii, indent=4)
 
 
 def write_list_to_csv(input_list, file_name, encoding=ENCODING):
