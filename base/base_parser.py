@@ -14,7 +14,7 @@ class BaseParser:
     @property
     def url_to_parse(self):
         """
-        Адрес сайта в виде строки, который будет парситься
+        Адрес сайта в виде строки, который будет парситься.
         """
         return NotImplementedError('Свойство не реализовано!')
 
@@ -46,10 +46,10 @@ class BaseParser:
         """
         return NotImplementedError('Метод не реализован!')
 
-    def _parse_item(self, item_url=None):
+    def _parse_item(self, item):
         """
         Парсит элемент страницы, который содержит нужную информацию.
-        :param item_url: адрес элемента в виде строки, если нужен подзапрос
+        :param item: элемент страницы, который содержит нужную информацию
         """
         return NotImplementedError('Метод не реализован!')
 

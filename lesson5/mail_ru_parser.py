@@ -96,7 +96,7 @@ class MailRuParser(BaseParser):
             except Exception as e:
                 print(f'При парсинге письма по адресу {url} произошла ошибка: {e}')
 
-    def _parse_item(self, item_url=None):
+    def _parse_item(self, item_url):
         """
         Парсит письмо по заданному адресу.
         :param item_url: адрес письма
